@@ -1,5 +1,5 @@
 {
-  "name": "just-swim-typeorm",
+  "name": "just-swim-feedback-service",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -23,6 +23,7 @@
     "@aws-sdk/client-s3": "^3.645.0",
     "@aws-sdk/s3-request-presigner": "^3.645.0",
     "@nestjs/common": "^10.0.0",
+    "@nestjs/config": "^3.2.3",
     "@nestjs/core": "^10.0.0",
     "@nestjs/jwt": "^10.2.0",
     "@nestjs/passport": "^10.0.3",
@@ -34,6 +35,7 @@
     "@types/passport-kakao": "^1.0.3",
     "@types/qrcode": "^1.5.5",
     "@types/uuid": "^10.0.0",
+    "class-transformer": "^0.5.1",
     "class-validator": "^0.14.1",
     "cookie-parser": "^1.4.6",
     "mysql2": "^3.11.1",
