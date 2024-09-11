@@ -26,6 +26,18 @@ export class Users {
   @Column({ type: 'varchar', nullable: true })
   email: string;
 
+  @Column({ type: 'varchar', nullable: true })
+  name: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  profileImage: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  birth: string;
+
+  @Column({ type: 'varchar', nullable: true })
+  phoneNumber: string;
+
   @CreateDateColumn({ type: 'timestamp' })
   userCreatedAt: Date;
 
