@@ -22,9 +22,11 @@ import { JwtService } from '@nestjs/jwt';
 import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './common/response/http-exception.filter';
 import { AuthMiddleWare } from './auth/middleware/auth.middleware';
+import { LoggerModule } from './common/logger/logger.module';
 
 @Module({
   imports: [
+    LoggerModule,
     ConfigModule.forRoot({ isGlobal: true }),
     // db 설정
     TypeOrmModule.forRootAsync({
