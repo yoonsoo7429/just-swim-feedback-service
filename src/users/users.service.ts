@@ -9,10 +9,14 @@ import { UsersDto } from './dto/users.dto';
 import { UserType } from './enum/user-type.enum';
 import { CustomerRepository } from 'src/customer/customer.repository';
 import { InstructorRepository } from 'src/instructor/instructor.repository';
+import slugify from 'slugify';
+import { EditProfileImageDto } from 'src/image/dto/edit-profile-image.dto';
+import { AwsService } from 'src/common/aws/aws.service';
 
 @Injectable()
 export class UsersService {
   constructor(
+    private readonly awsService: AwsService,
     private readonly usersRepository: UsersRepository,
     private readonly customerRepository: CustomerRepository,
     private readonly instructorRepository: InstructorRepository,
@@ -55,5 +59,27 @@ export class UsersService {
     if (userType === UserType.Instructor) {
       await this.instructorRepository.createInstructor(userId);
     }
+  }
+
+  /* profileImage 업로드를 위한 presigned url 생성 */
+  async generateProfileImagePresignedUrl(
+    userId: number,
+    editProfileImageDto: EditProfileImageDto,
+  ): Promise<string> {
+    const ext = editProfileImageDto.profileImage.split('.').pop();
+    const originalNameWithoutExt = editProfileImageDto.profileImage
+      .split('.')
+      .slice(0, -1)
+      .join('.'); // 확장자를 제외한 이름
+    const slugifiedName = slugify(originalNameWithoutExt, {
+      lower: true,
+      strict: true,
+    });
+    const fileName = `profileImage/${Date.now().toString()}-${slugifiedName}.${ext}`;
+
+    // presignedUrl 생성
+    const presignedUrl = await this.awsService.getPresignedUrl(fileName, ext);
+
+    return presignedUrl;
   }
 }

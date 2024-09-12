@@ -1,6 +1,7 @@
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   OneToMany,
   PrimaryGeneratedColumn,
@@ -9,10 +10,10 @@ import {
 import { UserType } from '../enum/user-type.enum';
 import { Customer } from 'src/customer/entity/customer.entity';
 import { Instructor } from 'src/instructor/entity/instructor.entity';
-//   import { Customer } from 'src/customer/entity/customer.entity';
-//   import { Instructor } from 'src/instructor/entity/instrutor.entity';
-//   import { Lecture } from 'src/lecture/entity/lecture.entity';
-//   import { Course } from 'src/course/entity/course.entity';
+import { Feedback } from 'src/feedback/entity/feedback.entity';
+import { Lecture } from 'src/lecture/entity/lecture.entity';
+import { Member } from 'src/member/entity/member.entity';
+import { FeedbackTarget } from 'src/feedback/entity/feedback-target.entity';
 
 @Entity('users')
 export class Users {
@@ -46,15 +47,30 @@ export class Users {
   @UpdateDateColumn({ type: 'timestamp' })
   userUpdatedAt: Date;
 
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  userDeletedAt: Date;
+
   @OneToMany(() => Customer, (customer) => customer.user)
   customer: Customer[];
 
   @OneToMany(() => Instructor, (instructor) => instructor.user)
   instructor: Instructor[];
 
-  // @OneToMany(() => Lecture, (lecture) => lecture.user)
-  // lecture: Lecture[];
+  @OneToMany(() => Member, (member) => member.user)
+  member: Member[];
 
-  // @OneToMany(() => Course, (course) => course.user)
-  // course: Course[];
+  @OneToMany(() => Lecture, (lecture) => lecture.user)
+  lecture: Lecture[];
+
+  @OneToMany(() => Feedback, (feedback) => feedback.user)
+  feedback: Feedback[];
+
+  @OneToMany(() => FeedbackTarget, (feedbackTarget) => feedbackTarget.user)
+  feedbackTarget: FeedbackTarget[];
+
+  // @OneToMany(
+  //   () => WithdrawalReason,
+  //   (withdrawalReason) => withdrawalReason.user,
+  // )
+  // withdrawalReason: WithdrawalReason[];
 }

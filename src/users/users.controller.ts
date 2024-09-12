@@ -27,6 +27,7 @@ import { NaverAuthGuard } from 'src/auth/guard/naver.guard';
 import { UsersDto } from './dto/users.dto';
 import { KakaoAuthGuard } from 'src/auth/guard/kakao.guard';
 import { UserType } from './enum/user-type.enum';
+import { EditProfileImageDto } from 'src/image/dto/edit-profile-image.dto';
 
 @ApiTags('Users')
 @Controller()
@@ -326,5 +327,31 @@ export class UsersController {
     const userProfile = await this.usersService.findUserByPk(userId);
 
     return this.responseService.success(res, '프로필 조회 성공', userProfile);
+  }
+
+  /* profileImage presigned url */
+  @Post('user/profileImage/presignedUrl')
+  @ApiOperation({
+    summary: 'profileImage에 대해서 presigned url을 보내준다.',
+    description: 'profileImage 저장 요청 시 presigned url을 보내준다.',
+  })
+  @ApiBearerAuth('accessToken')
+  async getPresignedUrlForProfileImage(
+    @Res() res: Response,
+    @Body() editProfileImageDto: EditProfileImageDto,
+  ) {
+    const { userId } = res.locals.user;
+
+    const presignedUrl =
+      await this.usersService.generateProfileImagePresignedUrl(
+        userId,
+        editProfileImageDto,
+      );
+
+    this.responseService.success(
+      res,
+      'profileImage presigned url 생성 완료',
+      presignedUrl,
+    );
   }
 }
