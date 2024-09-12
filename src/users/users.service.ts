@@ -1,11 +1,22 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotAcceptableException,
+  NotFoundException,
+} from '@nestjs/common';
 import { UsersRepository } from './users.repository';
 import { Users } from './entity/users.entity';
 import { UsersDto } from './dto/users.dto';
+import { UserType } from './enum/user-type.enum';
+import { CustomerRepository } from 'src/customer/customer.repository';
+import { InstructorRepository } from 'src/instructor/instructor.repository';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly usersRepository: UsersRepository) {}
+  constructor(
+    private readonly usersRepository: UsersRepository,
+    private readonly customerRepository: CustomerRepository,
+    private readonly instructorRepository: InstructorRepository,
+  ) {}
 
   /* user 생성 */
   async createUser(userData: UsersDto): Promise<Users> {
@@ -27,5 +38,22 @@ export class UsersService {
       throw new NotFoundException('사용자를 찾을 수 없습니다.');
     }
     return result;
+  }
+
+  /* user의 userType 지정 */
+  async selectUserType(userId: number, userType: UserType): Promise<void> {
+    const user = await this.usersRepository.findUserByPk(userId);
+    if (user.userType !== null) {
+      throw new NotAcceptableException('계정에 타입이 이미 지정되어 있습니다.');
+    }
+    // userType 지정
+    await this.usersRepository.selectUserType(userId, userType);
+    // 각 테이블에 맞게 생성
+    if (userType === UserType.Customer) {
+      await this.customerRepository.createCustomer(userId);
+    }
+    if (userType === UserType.Instructor) {
+      await this.instructorRepository.createInstructor(userId);
+    }
   }
 }

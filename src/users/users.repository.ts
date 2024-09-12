@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Users } from './entity/users.entity';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { UsersDto } from './dto/users.dto';
+import { UserType } from './enum/user-type.enum';
 
 @Injectable()
 export class UsersRepository {
@@ -43,5 +44,13 @@ export class UsersRepository {
   async findUserByPk(userId: number): Promise<Users> {
     const user = await this.usersRepository.findOne({ where: { userId } });
     return user;
+  }
+
+  /* userType을 지정 */
+  async selectUserType(
+    userId: number,
+    userType: UserType,
+  ): Promise<UpdateResult> {
+    return await this.usersRepository.update({ userId }, { userType });
   }
 }

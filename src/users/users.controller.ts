@@ -1,5 +1,23 @@
-import { Controller, Get, Req, Res, UseGuards } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Post,
+  Req,
+  Res,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { UsersService } from './users.service';
 import { AuthService } from 'src/auth/auth.service';
 import { ResponseService } from 'src/common/response/reponse.service';
@@ -8,6 +26,7 @@ import { Request, Response } from 'express';
 import { NaverAuthGuard } from 'src/auth/guard/naver.guard';
 import { UsersDto } from './dto/users.dto';
 import { KakaoAuthGuard } from 'src/auth/guard/kakao.guard';
+import { UserType } from './enum/user-type.enum';
 
 @ApiTags('Users')
 @Controller()
@@ -266,5 +285,46 @@ export class UsersController {
         );
       }
     }
+  }
+
+  /* 로그인 이후에 userType을 지정 */
+  @Post('user/:userType')
+  @ApiOperation({ summary: 'userType 선택' })
+  @ApiParam({
+    name: 'userType',
+    description: 'userType을 지정해주세요.',
+    enum: UserType,
+    enumName: 'UserType',
+  })
+  @ApiResponse({ status: 200, description: 'userType 지정 완료' })
+  @ApiResponse({ status: 400, description: 'userType을 지정해주세요' })
+  @ApiResponse({ status: 500, description: '서버 오류' })
+  @ApiBearerAuth('accessToken')
+  async selectUserType(
+    @Param('userType') userType: UserType,
+    @Res() res: Response,
+  ) {
+    const { userId } = res.locals.user;
+
+    // userType 기본 검사
+    if (!Object.values(UserType).includes(userType)) {
+      this.responseService.error(res, '올바른 userType을 지정해주세요.', 400);
+    }
+
+    await this.usersService.selectUserType(userId, userType);
+    return this.responseService.success(res, 'userType 지정 완료');
+  }
+
+  /* 나의 프로필 조회 */
+  @Get('user/myProfile')
+  @ApiOperation({ summary: '프로필 조회' })
+  @ApiOkResponse({ type: UsersDto, description: '프로필 조회 성공' })
+  @ApiResponse({ status: 500, description: '서버 오류' })
+  @ApiBearerAuth('accessToken')
+  async findUserProfile(@Res() res: Response) {
+    const { userId } = res.locals.user;
+    const userProfile = await this.usersService.findUserByPk(userId);
+
+    return this.responseService.success(res, '프로필 조회 성공', userProfile);
   }
 }

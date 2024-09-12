@@ -7,6 +7,8 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { UserType } from '../enum/user-type.enum';
+import { Customer } from 'src/customer/entity/customer.entity';
+import { Instructor } from 'src/instructor/entity/instructor.entity';
 //   import { Customer } from 'src/customer/entity/customer.entity';
 //   import { Instructor } from 'src/instructor/entity/instrutor.entity';
 //   import { Lecture } from 'src/lecture/entity/lecture.entity';
@@ -44,11 +46,11 @@ export class Users {
   @UpdateDateColumn({ type: 'timestamp' })
   userUpdatedAt: Date;
 
-  // @OneToMany(() => Customer, (customer) => customer.user)
-  // customer: Customer[];
+  @OneToMany(() => Customer, (customer) => customer.user)
+  customer: Customer[];
 
-  // @OneToMany(() => Instructor, (instructor) => instructor.user)
-  // instructor: Instructor[];
+  @OneToMany(() => Instructor, (instructor) => instructor.user)
+  instructor: Instructor[];
 
   // @OneToMany(() => Lecture, (lecture) => lecture.user)
   // lecture: Lecture[];
