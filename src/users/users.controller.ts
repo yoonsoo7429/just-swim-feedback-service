@@ -4,6 +4,7 @@ import {
   Delete,
   Get,
   Param,
+  Patch,
   Post,
   Req,
   Res,
@@ -28,6 +29,8 @@ import { UsersDto } from './dto/users.dto';
 import { KakaoAuthGuard } from 'src/auth/guard/kakao.guard';
 import { UserType } from './enum/user-type.enum';
 import { EditProfileImageDto } from 'src/image/dto/edit-profile-image.dto';
+import { EditUserDto } from './dto/edit-user.dto';
+import { WithdrawalReasonDto } from 'src/withdrawal-reason/dto/withdrawal-reason.dto';
 
 @ApiTags('Users')
 @Controller()
@@ -313,7 +316,7 @@ export class UsersController {
     }
 
     await this.usersService.selectUserType(userId, userType);
-    return this.responseService.success(res, 'userType 지정 완료');
+    this.responseService.success(res, 'userType 지정 완료');
   }
 
   /* 나의 프로필 조회 */
@@ -326,7 +329,7 @@ export class UsersController {
     const { userId } = res.locals.user;
     const userProfile = await this.usersService.findUserByPk(userId);
 
-    return this.responseService.success(res, '프로필 조회 성공', userProfile);
+    this.responseService.success(res, '프로필 조회 성공', userProfile);
   }
 
   /* profileImage presigned url */
@@ -353,5 +356,61 @@ export class UsersController {
       'profileImage presigned url 생성 완료',
       presignedUrl,
     );
+  }
+
+  /* 프로필 수정 */
+  @Patch('user/edit')
+  @ApiOperation({
+    summary: '유저 프로필 수정',
+    description: 'user의 프로필 수정을 한다.',
+  })
+  @ApiBody({
+    description: '프로필 수정에 필요한 정보를 받는다.',
+    type: EditUserDto,
+  })
+  @ApiResponse({ status: 200, description: '프로필 수정 완료' })
+  @ApiResponse({ status: 400, description: '프로필을 수정할 수 없습니다.' })
+  @ApiResponse({ status: 500, description: '서버 오류' })
+  @ApiBearerAuth('accessToken')
+  async editUserProfile(
+    @Body() editUserDto: EditUserDto,
+    @Res() res: Response,
+  ) {
+    const { userId } = res.locals.user;
+
+    await this.usersService.editUserProfile(userId, editUserDto);
+
+    this.responseService.success(res, '프로필 수정 완료');
+  }
+
+  /* 로그아웃 */
+  @Post('logout')
+  @ApiOperation({ summary: '로그 아웃' })
+  @ApiResponse({ status: 200, description: '로그아웃 완료' })
+  @ApiResponse({ status: 500, description: '서버 오류' })
+  @ApiBearerAuth('accessToken')
+  async logout(@Res() res: Response) {
+    res.clearCookie('authorization');
+    this.responseService.success(res, 'logout 완료');
+  }
+
+  /* 회원 탈퇴 */
+  @Delete('user/withdraw')
+  @ApiOperation({
+    summary: '회원 탈퇴',
+    description: '회원 탈퇴 시 사유를 저장하게 된다.',
+  })
+  @ApiBody({ description: '탈퇴 사유', type: WithdrawalReasonDto })
+  @ApiResponse({ status: 200, description: '회원 탈퇴 완료' })
+  @ApiResponse({ status: 500, description: '서버 오류' })
+  @ApiBearerAuth('accessToken')
+  async withdrawUser(
+    @Res() res: Response,
+    @Body() withdrawalReasonDto: WithdrawalReasonDto,
+  ) {
+    const { userId } = res.locals.user;
+    await this.usersService.withdrawUser(userId, withdrawalReasonDto);
+    res.clearCookie('authorization');
+    this.responseService.success(res, '회원 탈퇴 완료');
   }
 }

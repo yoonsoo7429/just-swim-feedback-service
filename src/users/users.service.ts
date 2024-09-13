@@ -1,5 +1,6 @@
 import {
   Injectable,
+  InternalServerErrorException,
   NotAcceptableException,
   NotFoundException,
 } from '@nestjs/common';
@@ -12,6 +13,9 @@ import { InstructorRepository } from 'src/instructor/instructor.repository';
 import slugify from 'slugify';
 import { EditProfileImageDto } from 'src/image/dto/edit-profile-image.dto';
 import { AwsService } from 'src/common/aws/aws.service';
+import { EditUserDto } from './dto/edit-user.dto';
+import { WithdrawalReasonDto } from 'src/withdrawal-reason/dto/withdrawal-reason.dto';
+import { WithdrawalReasonService } from 'src/withdrawal-reason/withdrawal-reason.service';
 
 @Injectable()
 export class UsersService {
@@ -20,6 +24,7 @@ export class UsersService {
     private readonly usersRepository: UsersRepository,
     private readonly customerRepository: CustomerRepository,
     private readonly instructorRepository: InstructorRepository,
+    private readonly withdrawalReasonService: WithdrawalReasonService,
   ) {}
 
   /* user 생성 */
@@ -81,5 +86,49 @@ export class UsersService {
     const presignedUrl = await this.awsService.getPresignedUrl(fileName, ext);
 
     return presignedUrl;
+  }
+
+  /* user 프로필 수정 */
+  async editUserProfile(userId: number, editUserDto: EditUserDto) {
+    const user = await this.usersRepository.findUserByPk(userId);
+
+    if (!user) {
+      throw new NotFoundException('해당 사용자를 찾을 수 없습니다.');
+    }
+
+    // profileImage를 수정할 경우
+    if (editUserDto.profileImage) {
+      // 기존 프로필 이미지가 있다면 삭제 준비
+      const exProfileImage = user.profileImage ? user.profileImage : null;
+
+      if (exProfileImage) {
+        const fileName = user.profileImage.split('/').slice(-2).join('/');
+        await this.awsService.deleteImageFromS3(fileName);
+      }
+    }
+    const updateResult = await this.usersRepository.editUserProfile(
+      userId,
+      editUserDto,
+    );
+    if (updateResult.affected === 0) {
+      throw new InternalServerErrorException('프로필 수정에 실패했습니다.');
+    }
+  }
+
+  /* user 탈퇴 */
+  async withdrawUser(
+    userId: number,
+    withdrawalReasonDto: WithdrawalReasonDto,
+  ): Promise<void> {
+    const updateResult = await this.usersRepository.withdrawUser(userId);
+
+    if (updateResult.affected === 0) {
+      throw new InternalServerErrorException('계정 탈퇴에 실패했습니다.');
+    }
+
+    await this.withdrawalReasonService.createWithdrawalReason(
+      userId,
+      withdrawalReasonDto,
+    );
   }
 }

@@ -4,6 +4,8 @@ import { Users } from './entity/users.entity';
 import { Repository, UpdateResult } from 'typeorm';
 import { UsersDto } from './dto/users.dto';
 import { UserType } from './enum/user-type.enum';
+import { EditUserDto } from './dto/edit-user.dto';
+import { WithdrawalReasonDto } from 'src/withdrawal-reason/dto/withdrawal-reason.dto';
 
 @Injectable()
 export class UsersRepository {
@@ -52,5 +54,36 @@ export class UsersRepository {
     userType: UserType,
   ): Promise<UpdateResult> {
     return await this.usersRepository.update({ userId }, { userType });
+  }
+
+  /* user 프로필 수정 */
+  async editUserProfile(
+    userId: number,
+    editUserDto: EditUserDto,
+  ): Promise<UpdateResult> {
+    const { name, profileImage, birth, phoneNumber } = editUserDto;
+    return await this.usersRepository.update(
+      { userId },
+      { name, profileImage, birth, phoneNumber },
+    );
+  }
+
+  /* user(instructor) 탈퇴 */
+  async withdrawUser(userId: number): Promise<UpdateResult> {
+    const updateResult = await this.usersRepository.update(
+      { userId },
+      {
+        name: null,
+        userType: null,
+        provider: null,
+        email: null,
+        profileImage: null,
+        birth: null,
+        phoneNumber: null,
+        userDeletedAt: new Date(),
+      },
+    );
+
+    return updateResult;
   }
 }
