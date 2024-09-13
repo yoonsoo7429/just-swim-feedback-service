@@ -14,6 +14,7 @@ import { Feedback } from 'src/feedback/entity/feedback.entity';
 import { Lecture } from 'src/lecture/entity/lecture.entity';
 import { Member } from 'src/member/entity/member.entity';
 import { FeedbackTarget } from 'src/feedback/entity/feedback-target.entity';
+import { WithdrawalReason } from 'src/withdrawal-reason/entity/withdrawal-reason.entity';
 
 @Entity('users')
 export class Users {
@@ -68,9 +69,9 @@ export class Users {
   @OneToMany(() => FeedbackTarget, (feedbackTarget) => feedbackTarget.user)
   feedbackTarget: FeedbackTarget[];
 
-  // @OneToMany(
-  //   () => WithdrawalReason,
-  //   (withdrawalReason) => withdrawalReason.user,
-  // )
-  // withdrawalReason: WithdrawalReason[];
+  @OneToMany(
+    () => WithdrawalReason,
+    (withdrawalReason) => withdrawalReason.user,
+  )
+  withdrawalReason: WithdrawalReason[];
 }

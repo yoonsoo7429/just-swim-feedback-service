@@ -23,6 +23,7 @@ import { APP_FILTER } from '@nestjs/core';
 import { HttpExceptionFilter } from './common/response/http-exception.filter';
 import { AuthMiddleWare } from './auth/middleware/auth.middleware';
 import { LoggerModule } from './common/logger/logger.module';
+import { WithdrawalReasonModule } from './withdrawal-reason/withdrawal-reason.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { LoggerModule } from './common/logger/logger.module';
     MemberModule,
     AwsModule,
     ResponseModule,
+    WithdrawalReasonModule,
   ],
   controllers: [AppController],
   providers: [
