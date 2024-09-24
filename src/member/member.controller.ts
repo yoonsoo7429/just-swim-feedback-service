@@ -15,10 +15,12 @@ import {
   ApiOperation,
   ApiParam,
   ApiResponse,
+  ApiTags,
 } from '@nestjs/swagger';
 import { Response } from 'express';
 import { allMembersByFeedback, memberInfo } from './example/member-example';
 
+@ApiTags('Member')
 @Controller('member')
 export class MemberController {
   constructor(

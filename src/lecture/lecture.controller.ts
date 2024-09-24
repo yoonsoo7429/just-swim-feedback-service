@@ -2,13 +2,19 @@ import { Controller, Get, Res } from '@nestjs/common';
 import { LectureService } from './lecture.service';
 import { MemberService } from 'src/member/member.service';
 import { ResponseService } from 'src/common/response/reponse.service';
-import { ApiBearerAuth, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import {
   getScheduleLecturesByCustomer,
   getScheuldeLecturesByInstructor,
 } from './example/lecture-example';
 import { Response } from 'express';
 
+@ApiTags('Lecture')
 @Controller('lecture')
 export class LectureController {
   constructor(
