@@ -97,10 +97,7 @@ export class MemberController {
   async getAllMembersByFeedback(@Res() res: Response) {
     const { userId, userType } = res.locals.user;
     if (userType !== 'instructor') {
-      return this.reponseService.unauthorized(
-        res,
-        '수강생 조회 권한이 없습니다.',
-      );
+      this.reponseService.unauthorized(res, '수강생 조회 권한이 없습니다.');
     }
 
     const allMembers = await this.memberService.getAllMembersByFeedback(

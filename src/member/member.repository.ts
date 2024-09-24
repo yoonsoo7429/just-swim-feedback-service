@@ -2,7 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Member } from './entity/member.entity';
 import { Repository } from 'typeorm';
-import { groupBy } from 'rxjs';
 
 @Injectable()
 export class MemberRepository {

@@ -50,7 +50,7 @@ export class LectureController {
     if (userType === 'instructor') {
       const lectures =
         await this.lectureService.getScheduleLecturesByInstructor(userId);
-      return this.responseService.success(
+      this.responseService.success(
         res,
         '스케줄에 해당하는 강의 조회 성공',
         lectures,
@@ -61,7 +61,7 @@ export class LectureController {
     if (userType === 'customer') {
       const lectures =
         await this.lectureService.getScheduleLecturesByCustomer(userId);
-      return this.responseService.success(
+      this.responseService.success(
         res,
         '스케줄에 해당하는 강의 조회 성공',
         lectures,
